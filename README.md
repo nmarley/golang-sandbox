@@ -2,6 +2,8 @@
 
 Yeah, I hope it's as good as they say it is.
 
+Following the tutorial here: <https://tour.golang.org/flowcontrol/1>
+
 ### LICENSE
 
 MIT Licensed
