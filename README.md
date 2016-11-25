@@ -2,7 +2,7 @@
 
 Yeah, I hope it's as good as they say it is.
 
-Following the tutorial here: <https://tour.golang.org/moretypes/5>
+Following the tutorial here: <https://tour.golang.org/moretypes/8>
 
 ### LICENSE
 
