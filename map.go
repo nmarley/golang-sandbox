@@ -31,4 +31,8 @@ func main() {
     } else {
         fmt.Println("We have no rating associated with C# in the map")
     }
+
+    r2 := ratings
+    r2["C"] = 7
+    fmt.Printf("ratings: %v\n", ratings)
 }
