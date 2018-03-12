@@ -77,7 +77,7 @@ func main() {
 	var buf [88]byte
 	// var numTxBuf [9]byte
 
-	f, err := os.Open("blk00028.dat")
+	f, err := os.Open("testdata/blk00028.dat")
 	if err != nil {
 		panic(err)
 	}
