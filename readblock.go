@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"reflect"
+	// "reflect"
 )
 
 type BlockHeader struct {
@@ -20,40 +20,56 @@ type BlockHeader struct {
 	// txns ?
 }
 
+// type Transaction struct {
+//   version uint32  // 4
+//   inCount uint64  // variable
+//   // inputs  //
+// }
+
 // but see also:
 // https://stackoverflow.com/questions/28012952/golang-variable-length-array-in-struct-for-use-with-binary-read
 
 // http://learnmeabitcoin.com/glossary/blkdat
 
-func readVarInt(f *os.File) []byte {
-	value := make([]byte, 1, 9)
+// func readVarInt(f *os.File) []byte {
+func readVarInt(f *os.File) uint64 {
+	varintBuf := make([]byte, 1, 9)
+	var rv uint64 = 0
 
-	_, err2 := io.ReadFull(f, value[0:1])
+	_, err2 := io.ReadFull(f, varintBuf[0:1])
 	if err2 != nil {
 		panic(err2)
 	}
 
-	iv := uint8(value[0:1])
+	iv := uint8(varintBuf[0])
 	fmt.Printf("iv = %v\n", iv)
 	// if uint8(value[0:1]) < 0xFD
 	if iv < 0xFD {
-		fmt.Printf("Only one byte needed for this varint...")
-	} else if iv == 0xFD {
-		// read another byte
-		fmt.Printf("try something else... 0xFD")
-	} else if iv == 0xFE {
-		// read another byte
-		fmt.Printf("try something else... 0xFE")
-	} else if iv == 0xFF {
-		// read another byte
-		fmt.Printf("try something else... 0xFF")
+		fmt.Println("Only one byte needed for this varint...")
+		rv = uint64(iv)
+		return rv
 	}
 
-	// convert to uint32 and return
-	x := binary.LittleEndian.Uint32(value[0:4])
-	fmt.Printf("x = %v\n", x)
+	// another read is required...
 
-	return value
+	var readSize uint8 = 0
+	if iv == 0xFD {
+		// 0xfd followed by the length as uint16
+		readSize = 2
+	} else if iv == 0xFE {
+		// 0xfe followed by the length as uint32
+		readSize = 4
+	} else if iv == 0xFF {
+		// 0xff followed by the length as uint64
+		readSize = 8
+	}
+
+	_, err2 = io.ReadFull(f, varintBuf[0:readSize])
+	if err2 != nil {
+		panic(err2)
+	}
+
+	return uint64(varintBuf[0])
 }
 
 func main() {
@@ -61,7 +77,7 @@ func main() {
 	var buf [88]byte
 	// var numTxBuf [9]byte
 
-	f, err := os.Open("blk00000.dat")
+	f, err := os.Open("blk00028.dat")
 	if err != nil {
 		panic(err)
 	}
@@ -71,16 +87,8 @@ func main() {
 	if err2 != nil {
 		panic(err2)
 	}
-	var p reflect.Value = reflect.ValueOf(f)
-	var v reflect.Value = p.Elem()
-	fmt.Printf("kind = [%v]\n", v.Kind())
-	var numTxBuf []byte = readVarInt(f)
 
-	// _, err2 = io.ReadFull(f, numTxBuf[0:1])
-	// if err2 != nil {
-	//    panic(err2)
-	// }
-	fmt.Printf("got numTxBuf: %v\n", numTxBuf)
+	var numTx = readVarInt(f)
 
 	magic := binary.BigEndian.Uint32(buf[0:4])
 	fmt.Printf("magic = %v\n", magic)
@@ -107,8 +115,10 @@ func main() {
 	fmt.Println("\t bits:", blk_header.bits)
 	fmt.Println("\t nonce:", blk_header.nonce)
 
-	// numTx :=
-	// fmt.Println("\t nonce:", blk_header.nonce)
+	fmt.Printf("\n")
+	fmt.Printf("\t block has [%v] transaction(s):\n", numTx)
+
+	// TODO: loop thru & read numTx transactions...
 
 }
 
