@@ -91,7 +91,7 @@ func main() {
 	var numTx = readVarInt(f)
 
 	magic := binary.BigEndian.Uint32(buf[0:4])
-	fmt.Printf("magic = %v\n", magic)
+	fmt.Printf("magic = 0x%08x\n", magic)
 
 	size := binary.LittleEndian.Uint32(buf[4:8])
 	fmt.Printf("size = %v\n", size)
