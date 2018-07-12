@@ -3,11 +3,11 @@ package main
 import "fmt"
 
 func main() {
-    var p *int
-    var i int = 42
-    p = &i
+	var p *int
+	var i int = 42
+	p = &i
 
-    *p = 21
+	*p = 21
 
-    fmt.Println(*p)
+	fmt.Println(*p)
 }
